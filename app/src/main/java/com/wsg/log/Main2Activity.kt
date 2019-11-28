@@ -15,7 +15,6 @@ class Main2Activity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
         Logger.init()
-//        Logger.devLog(msg = "dadadasdjdhkasjkdasjkldkaskldkal;skflaklfklak;kfakflakjgnangnajdnjasnjdansdasnmdnasdas")
         val json = "{" +
                 " \"code\":\"50002\"," + " \"message\":\"版本可选更新\"," + " \"resultData\":{" + "  \"foreUpdate\":false," +
                 "  \"updateUrl\":\"http://127.0.0.1/android/test\"" +
@@ -28,16 +27,16 @@ class Main2Activity : Activity() {
         Logger.devLog(msg = "dada")
 //        Logger.devLog(msg = "dada")
 //        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = "dada")
-//        Logger.devLog(msg = json)
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = "dada")
+////        Logger.devLog(msg = json)
     }
 
 }

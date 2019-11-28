@@ -117,6 +117,7 @@ object Logger {
             return LogConfig.generateDefaultLogDirectory()!!
                 .plus("/")
                 .plus(logTag)
+                .plus("-")
                 .plus(getSimpleDateString())
                 .plus(LogConfig.SUFFIX)
         } else {
