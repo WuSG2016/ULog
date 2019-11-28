@@ -95,7 +95,7 @@ object Logger {
     }
 
     private fun checkMsgLength(msg: String): Boolean {
-        if (msg.length > 100) {
+        if (msg.length > 70) {
             return true
         }
         return false
@@ -141,7 +141,7 @@ object Logger {
         if (!mFile.exists()) {
             mFile.createNewFile()
         }
-        val timeStringBuilder = mTimeStringBuilder.append(getNow()).append(":").append(text)
+        val timeStringBuilder = mTimeStringBuilder.append(getNow()).append(" - ").append(text)
         mFile.appendText(timeStringBuilder.toString(), Charset.defaultCharset())
     }
 
@@ -225,18 +225,18 @@ object Logger {
         var stackOffset = LoggerPrinter.getStackOffset(sElements)
         stackOffset++
         val builder = StringBuilder()
-        builder.append("║ Thread: " + Thread.currentThread().name)
+        builder.append("[" + Thread.currentThread().name).append("]")
             // 添加类名、方法名、行数
-            .append("║ ")
+            .append(" - [")
             .append(sElements[stackOffset].className)
             .append(".")
             .append(sElements[stackOffset].methodName)
-            .append(" ")
-            .append(" (")
+            .append("(")
             .append(sElements[stackOffset].fileName)
             .append(":")
             .append(sElements[stackOffset].lineNumber)
             .append(")")
+            .append("]")
             .append("\r\n")
             // 添加打印的日志信息
             .append("%s").append("\r\n")
@@ -265,9 +265,9 @@ object Logger {
         val builder = StringBuilder()
         //时间
         builder
-            .append("║ " + "Thread: " + Thread.currentThread().name)
+            .append("["  + Thread.currentThread().name).append("]")
             // 添加类名、方法名、行数
-            .append("║ ")
+            .append(" - [")
             .append(sElements[stackOffset].className)
             .append(".")
             .append(sElements[stackOffset].methodName)
@@ -276,11 +276,12 @@ object Logger {
             .append(":")
             .append(sElements[stackOffset].lineNumber)
             .append(")")
+            .append("]")
             .append(
                 if (checkMsgLength) {
                     "\r\n"
                 } else {
-                    "║ "
+                    " - "
                 }
             )
             .append("%s").append("\r\n")
