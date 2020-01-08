@@ -1,7 +1,8 @@
-
 package com.wsg.common.utils
 
 import android.annotation.TargetApi
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import java.io.File
 import java.io.InputStream
@@ -50,15 +51,15 @@ object FileZipUtils {
     }
 
 
-    fun ZipOutputStream.zipFrom(vararg srcs: String) {
+    fun ZipOutputStream.zipFrom(vararg src: String) {
 
-        val files = srcs.map { File(it) }
+        val files = src.map { File(it) }
 
         files.forEach {
             if (it.isFile) {
                 zip(arrayOf(it), null)
             } else if (it.isDirectory) {
-                zip(it.listFiles(), it.name)
+                zip(it.listFiles()!!, it.name)
             }
         }
         this.close()
@@ -78,7 +79,7 @@ object FileZipUtils {
                 ins.writeTo(this, DEFAULT_BUFFER_SIZE, closeOutput = false)
                 closeEntry()
             } else {
-                zip(it.listFiles(), "$prefix${it.name}")
+                zip(it.listFiles()!!, "$prefix${it.name}")
             }
         }
     }
@@ -86,8 +87,10 @@ object FileZipUtils {
     /**
      * inputstream内容写入outputstream
      */
-    private fun InputStream.writeTo(outputStream: OutputStream, bufferSize: Int = 1024 * 2,
-                            closeInput: Boolean = true, closeOutput: Boolean = true) {
+    private fun InputStream.writeTo(
+        outputStream: OutputStream, bufferSize: Int = 1024 * 2,
+        closeInput: Boolean = true, closeOutput: Boolean = true
+    ) {
 
         val buffer = ByteArray(bufferSize)
         val br = this.buffered()
@@ -120,9 +123,9 @@ object FileZipUtils {
     private fun File.smartCreateNewFile(): Boolean {
 
         if (exists()) return true
-        if (parentFile.exists()) return createNewFile()
+        if (parentFile!!.exists()) return createNewFile()
 
-        if (parentFile.mkdirs()) {
+        if (parentFile!!.mkdirs()) {
             if (this.createNewFile()) {
                 return true
             }
@@ -130,4 +133,6 @@ object FileZipUtils {
         return false
 
     }
+
+
 }

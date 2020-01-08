@@ -1,5 +1,4 @@
 package com.wsg.common
-
 object LoggerPrinter {
 
     private const val MIN_STACK_OFFSET = 3

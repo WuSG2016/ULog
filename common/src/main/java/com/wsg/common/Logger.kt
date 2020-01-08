@@ -1,14 +1,14 @@
 package com.wsg.common
 
-import android.annotation.SuppressLint
 import android.util.Log
+import com.wsg.common.utils.TimeUtils
+
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 import java.nio.charset.Charset
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 object Logger {
@@ -34,62 +34,22 @@ object Logger {
     }
 
     private var TAG = "Ubox_Log"
-
-    var logLevel = LogLevel.DEBUG
+    private var logLevel = LogLevel.DEBUG
     private var mTimeStringBuilder = java.lang.StringBuilder()
-    @SuppressLint("SimpleDateFormat")
-    private var mSimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-    @SuppressLint("SimpleDateFormat")
-    private val mSimpleDateFormat1 = SimpleDateFormat("yyyy-MM-dd")
-    private val mCalendar = Calendar.getInstance()
 
 
     @JvmStatic
-    fun init(logFilePath: String = LogConfig.DEFAULT_LOG_DIRECTORY) {
-        LogConfig
-            .addLogFile("devLog")
-            .addLogFile("vmcLog")
-            .addLogFile("deBugLog")
-            .DEFAULT_LOG_DIRECTORY = logFilePath
+    fun otherTagLog(tag: String = TAG, msg: String, filePath: String) {
+        tagLog(msg, tag, filePath)
     }
 
-    @JvmStatic
-    fun addLogFile(logTag: String) {
-        if (logTag.isNotEmpty()) {
-            LogConfig.addLogFile(logTag)
-        }
-    }
-
-    @JvmStatic
-    fun devLog(tag: String = TAG, msg: String) {
-        tagLog(msg, tag, LogConfig.DEV_TAG)
-    }
-
-    @JvmStatic
-    fun deBugLog(tag: String = TAG, msg: String) {
-        tagLog(msg, tag, LogConfig.DEBUG_TAG)
-    }
-
-    @JvmStatic
-    fun vmcLog(tag: String = TAG, msg: String) {
-        tagLog(msg, tag, LogConfig.VMC_TAG)
-    }
-
-    @JvmStatic
-    fun otherTagLog(tag: String = TAG, msg: String, logTag: String) {
-        tagLog(msg, tag, logTag)
-    }
-
-    private fun tagLog(msg: String, tag: String, logTag: String) {
+    private fun tagLog(msg: String, tag: String, filePath: String) {
         if (LogLevel.DEBUG.value <= logLevel.value) {
             if (msg.isNotBlank()) {
                 val s = getMethodNames(checkMsgLength(msg))
                 val string = String.format(s, msg)
                 Log.d(tag, string)
-                val filePath = getLogFilePath(logTag)
-                if (!filePath.isNullOrEmpty()) {
-                    writeText(string, filePath)
-                }
+                writeText(string, filePath)
             }
         }
     }
@@ -101,30 +61,6 @@ object Logger {
         return false
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun getSimpleDateString(): String {
-        return if (android.os.Build.VERSION.SDK_INT >= 24) {
-            mSimpleDateFormat1.format(Date())
-        } else {
-            mCalendar.get(Calendar.YEAR).toString() + "-" + mCalendar.get(Calendar.MONTH).toString() + "-" + mCalendar.get(
-                Calendar.DAY_OF_MONTH
-            ).toString()
-        }
-    }
-
-    private fun getLogFilePath(logTag: String): String? {
-        if (LogConfig.logHashMap.containsKey(logTag)) {
-            return LogConfig.generateDefaultLogDirectory()!!
-                .plus("/")
-                .plus(logTag)
-                .plus("-")
-                .plus(getSimpleDateString())
-                .plus(LogConfig.SUFFIX)
-        } else {
-            e(TAG, "$logTag can't find logHashMap")
-        }
-        return null
-    }
 
     @JvmStatic
     fun e(tag: String = TAG, msg: String) {
@@ -139,11 +75,41 @@ object Logger {
     @Synchronized
     fun writeText(text: String, file: String) {
         val mFile = File(file)
-        if (!mFile.exists()) {
-            mFile.createNewFile()
+        if (createFileOrDir(mFile)) {
+            val timeStringBuilder =
+                mTimeStringBuilder.append(TimeUtils.getNow()).append(" - ").append(text)
+            mFile.appendText(timeStringBuilder.toString(), Charset.defaultCharset())
+            mTimeStringBuilder.clear()
+        } else {
+            e(msg = "create file error")
         }
-        val timeStringBuilder = mTimeStringBuilder.append(getNow()).append(" - ").append(text)
-        mFile.appendText(timeStringBuilder.toString(), Charset.defaultCharset())
+    }
+
+    private fun createFileOrDir(file: File): Boolean {
+        if (file.isFile && file.exists()) {
+            return true
+        }
+        if (file.isDirectory) {
+            return file.mkdirs()
+        }
+        val parentFile = file.parentFile
+        if (!parentFile!!.exists()) {
+            val mkdirs = parentFile.mkdirs()
+            if (!mkdirs)
+                return false
+        } else {
+            if (!parentFile.isDirectory) {
+                val delete = parentFile.delete()
+                val mkdirs = parentFile.mkdirs()
+                if (!delete || !mkdirs) return false
+            }
+        }
+        try {
+            return file.createNewFile()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return false
     }
 
     @JvmStatic
@@ -177,7 +143,7 @@ object Logger {
     }
 
     @JvmStatic
-    fun json(json: String, logTag: String = "") {
+    fun json(json: String, filePath: String) {
         var json = json
         if (json.isBlank()) {
             d(msg = "Empty/Null json content")
@@ -192,7 +158,7 @@ object Logger {
                 val s = getJsonMethodNames()
                 val string = String.format(s, message)
                 println(string)
-                writeJsonToFile(logTag, string)
+                writeText(string, filePath)
                 return
             }
             if (json.startsWith("[")) {
@@ -202,7 +168,7 @@ object Logger {
                 val s = getJsonMethodNames()
                 val string = String.format(s, message)
                 println(string)
-                writeJsonToFile(logTag, string)
+                writeText(string, filePath)
                 return
             }
             e(msg = "Invalid Json")
@@ -212,19 +178,11 @@ object Logger {
 
     }
 
-    private fun writeJsonToFile(logTag: String, string: String) {
-        if (logTag.isNotEmpty()) {
-            val filePath = getLogFilePath(logTag)
-            if (!filePath.isNullOrEmpty()) {
-                writeText(string, filePath)
-            }
-        }
-    }
 
     private fun getJsonMethodNames(): String {
         val sElements = Thread.currentThread().stackTrace
         var stackOffset = LoggerPrinter.getStackOffset(sElements)
-        stackOffset++
+        stackOffset += 2
         val builder = StringBuilder()
         builder.append("[" + Thread.currentThread().name).append("]")
             // 添加类名、方法名、行数
@@ -244,29 +202,15 @@ object Logger {
         return builder.toString()
     }
 
-    @SuppressLint("SimpleDateFormat")
-    private fun getNow(): String {
-        return if (android.os.Build.VERSION.SDK_INT >= 24) {
-            mSimpleDateFormat.format(Date())
-        } else {
-            mCalendar.get(Calendar.YEAR).toString() + "-" + mCalendar.get(Calendar.MONTH).toString() + "-" + mCalendar.get(
-                Calendar.DAY_OF_MONTH
-            ).toString() + " " + mCalendar.get(Calendar.HOUR_OF_DAY).toString() + ":" + mCalendar.get(
-                Calendar.MINUTE
-            ).toString() + ":" + mCalendar.get(
-                Calendar.SECOND
-            ).toString() + "." + mCalendar.get(Calendar.MILLISECOND).toString()
-        }
-    }
 
     private fun getMethodNames(checkMsgLength: Boolean): String {
         val sElements = Thread.currentThread().stackTrace
         var stackOffset = LoggerPrinter.getStackOffset(sElements)
-        stackOffset++
+        stackOffset += 2
         val builder = StringBuilder()
         //时间
         builder
-            .append("["  + Thread.currentThread().name).append("]")
+            .append("[" + Thread.currentThread().name).append("]")
             // 添加类名、方法名、行数
             .append(" - [")
             .append(sElements[stackOffset].className)
@@ -288,6 +232,7 @@ object Logger {
             .append("%s").append("\r\n")
         return builder.toString()
     }
+
 
 }
 

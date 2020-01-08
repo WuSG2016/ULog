@@ -1,4 +1,50 @@
 [![Release](https://jitpack.io/v/User/Repo.svg)]
 (https://jitpack.io/#User/Repo)
 
-https://jitpack.io/v/User/Repo.svg?style=flat-square
+- https://jitpack.io/v/User/Repo.svg?style=flat-square
+- # 基于注解处理器的日志打印工具
+- **根目录build.gradle添加** 
+```
+	allprojects {
+		repositories {
+			...
+			//添加
+			maven { url 'https://www.jitpack.io' }
+		}
+	}
+```
+- **APP的build.gradle文件增加**
+```
+dependencies {
+	        implementation 'com.github.WuSG2016:RetryLib:Tag'
+	}
+```
+- ## 新建类继承AbstractLogger并实现方法 如下:
+
+```
+//增加注解 增加对应的TAG文件信息(如dev会生成dev目录下dev-2020-1-6.log的文件)
+//make project 会生成_UboxLog文件类 包含TAG等方法(_UboxLog.dev(msg))
+@ULog(tagName = ["dev"])
+class UboxLog : AbstractLogger() {
+    override fun getAbstractLogConfig(): AbstractLogConfig {
+        return DefaultLogConfig()//默认自带的
+    }配置类
+}
+
+//别忘了在Application 里加入代码 用于初始化
+ _UboxLog.Companion.init(this);
+```
+- ## 抽象类AbstractLogConfig说明
+
+```
+AbstractLogConfig
+     //日志输出文件夹
+    abstract fun getDefaultLogDirectory(): String?
+    //日志的后缀名
+    abstract fun onSuffix(): String?
+
+```
+- ## **`注意事项`**
+- **使用前记得获取读写权限**
+- **增加kotlin注解处理器支持以及kotlin支持**
+- ## 更新说明 

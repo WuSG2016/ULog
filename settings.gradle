@@ -1,2 +1,2 @@
-include ':app', ':common'
+include ':app', ':common', ':compiler', ':annotation'
 rootProject.name='ULog'
