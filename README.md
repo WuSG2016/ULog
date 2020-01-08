@@ -1,7 +1,5 @@
-[![Release](https://jitpack.io/v/User/Repo.svg)]
-(https://jitpack.io/#User/Repo)
+[![](https://www.jitpack.io/v/WuSG2016/Ulog.svg)](https://www.jitpack.io/#WuSG2016/Ulog)
 
-- https://jitpack.io/v/User/Repo.svg?style=flat-square
 - # 基于注解处理器的日志打印工具
 - **根目录build.gradle添加** 
 ```
