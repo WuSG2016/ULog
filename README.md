@@ -13,8 +13,13 @@
 ```
 - **APP的build.gradle文件增加**
 ```
+apply plugin: 'kotlin-kapt'
+
 dependencies {
-	        implementation 'com.github.WuSG2016:RetryLib:Tag'
+    implementation 'com.github.WuSG2016.Ulog:annotation:1.1'
+    implementation 'com.github.WuSG2016.Ulog:common:1.1'
+    kapt 'com.github.WuSG2016.Ulog:compiler:1.1'
+  
 	}
 ```
 - ## 新建类继承AbstractLogger并实现方法 如下:

@@ -47,9 +47,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation project(path: ':common')
-    kapt project(':compiler')
-    implementation project(path: ':annotation')
+    implementation 'com.github.WuSG2016.Ulog:annotation:1.1'
+    implementation 'com.github.WuSG2016.Ulog:common:1.1'
+    kapt 'com.github.WuSG2016.Ulog:compiler:1.1'
 
 }
 afterEvaluate {
