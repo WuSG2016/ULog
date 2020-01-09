@@ -2,6 +2,7 @@ package com.wsg.common
 
 import android.util.Log
 import com.wsg.common.utils.TimeUtils
+import com.wsg.common.utils.smartCreateNewFile
 
 import org.json.JSONArray
 import org.json.JSONException
@@ -9,6 +10,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
+
 
 
 object Logger {
@@ -75,41 +77,14 @@ object Logger {
     @Synchronized
     fun writeText(text: String, file: String) {
         val mFile = File(file)
-        if (createFileOrDir(mFile)) {
+        if (mFile.smartCreateNewFile()) {
             val timeStringBuilder =
                 mTimeStringBuilder.append(TimeUtils.getNow()).append(" - ").append(text)
             mFile.appendText(timeStringBuilder.toString(), Charset.defaultCharset())
             mTimeStringBuilder.clear()
-        } else {
-            e(msg = "create file error")
+        }else{
+            e(msg = "Create New File Fail!")
         }
-    }
-
-    private fun createFileOrDir(file: File): Boolean {
-        if (file.isFile && file.exists()) {
-            return true
-        }
-        if (file.isDirectory) {
-            return file.mkdirs()
-        }
-        val parentFile = file.parentFile
-        if (!parentFile!!.exists()) {
-            val mkdirs = parentFile.mkdirs()
-            if (!mkdirs)
-                return false
-        } else {
-            if (!parentFile.isDirectory) {
-                val delete = parentFile.delete()
-                val mkdirs = parentFile.mkdirs()
-                if (!delete || !mkdirs) return false
-            }
-        }
-        try {
-            return file.createNewFile()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return false
     }
 
     @JvmStatic

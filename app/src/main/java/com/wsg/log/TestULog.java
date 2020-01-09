@@ -5,7 +5,7 @@ import com.wsg.common.Logger;
 public class TestULog {
 
     public static void Log(String s) {
-       _UboxLog.Companion.dev(s);
+       _UboxLog.Companion.devLog(s);
 
     }
 

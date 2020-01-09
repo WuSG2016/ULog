@@ -23,15 +23,14 @@ dependencies {
 	}
 ```
 - ## 新建类继承AbstractLogger并实现方法 如下:
-
 ```
 //增加注解 增加对应的TAG文件信息(如dev会生成dev目录下dev-2020-1-6.log的文件)
 //make project 会生成_UboxLog文件类 包含TAG等方法(_UboxLog.dev(msg))
 @ULog(tagName = ["dev"])
 class UboxLog : AbstractLogger() {
     override fun getAbstractLogConfig(): AbstractLogConfig {
-        return DefaultLogConfig()//默认自带的
-    }配置类
+        return DefaultLogConfig()//默认自带的配置类
+    }
 }
 
 //别忘了在Application 里加入代码 用于初始化
@@ -51,3 +50,17 @@ AbstractLogConfig
 - **使用前记得获取读写权限**
 - **增加kotlin注解处理器支持以及kotlin支持**
 - ## 更新说明 
+- #### 1.2版本修改日志压缩
+```
+  val file = File("/mnt/sdcard/ULog/output.zip")
+        //解压
+        if (file.smartCreateNewFile()) {
+            file.unZipTo("/mnt/sdcard/Ulog/2020-02")
+        }
+        //压缩
+        file.zipOutputStream()
+            .zipFrom(
+                "/mnt/sdcard/Ulog/2020-01/dev",
+                "/mnt/sdcard/Ulog/2020-01/devLog/devLog-2020-01-9.log"
+            )
+```

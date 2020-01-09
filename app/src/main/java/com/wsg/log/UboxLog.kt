@@ -9,7 +9,7 @@ import com.wsg.common.DefaultLogConfig
  *  @author WuSG
  *  @date : 2020-01-08 16:16
  */
-@ULog(tagName = ["dev"])
+@ULog(tagName = ["devLog","vmcLog"])
 class UboxLog : AbstractLogger() {
     override fun getAbstractLogConfig(): AbstractLogConfig {
         return DefaultLogConfig()
