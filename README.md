@@ -16,9 +16,9 @@
 apply plugin: 'kotlin-kapt'
 
 dependencies {
-    implementation 'com.github.WuSG2016.Ulog:annotation:1.1'
-    implementation 'com.github.WuSG2016.Ulog:common:1.1'
-    kapt 'com.github.WuSG2016.Ulog:compiler:1.1'
+    implementation 'com.github.WuSG2016.Ulog:annotation:TAG'
+    implementation 'com.github.WuSG2016.Ulog:common:TAG'
+    kapt 'com.github.WuSG2016.Ulog:compiler:TAG'
   
 	}
 ```
