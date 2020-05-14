@@ -22,7 +22,6 @@ class LogProcessor : AbstractProcessor() {
     companion object {
         const val ABSTRACT_LOGGER = "com.wsg.common.AbstractLogger"
         const val COMMON_PACKAGE_NAME = "com.wsg.common"
-        const val APPLICATION_PACKAGE_NAME = "android.app"
     }
 
 
@@ -115,8 +114,8 @@ class LogProcessor : AbstractProcessor() {
                         FunSpec.builder(funName)
                             .addParameter(msgParameter)
                             .addParameter(tag)
-                            .addStatement("if (mLoggerConfig!!.checkPermission()) {")
-                            .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"$funName\")")
+                            .addStatement("if (AbstractLogConfig.checkPermission()) {")
+                            .addStatement("val filePath = mLoggerConfig.getLogFilePath(\"$funName\")")
                             .addStatement(
                                 " %T.otherTagLog(msg = msg, tag = tag, filePath = filePath!!)",
                                 ClassName(COMMON_PACKAGE_NAME, "Logger")
@@ -137,8 +136,8 @@ class LogProcessor : AbstractProcessor() {
                     else -> {
                         FunSpec.builder(funName)
                             .addParameter(msgParameter)
-                            .addStatement("if (mLoggerConfig!!.checkPermission()) {")
-                            .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"$funName\")")
+                            .addStatement("if (AbstractLogConfig.checkPermission()) {")
+                            .addStatement("val filePath = mLoggerConfig.getLogFilePath(\"$funName\")")
                             .addStatement(
                                 " %T.otherTagLog(msg = msg,  tag = \"Ubox_TAG\", filePath = filePath!!)",
                                 ClassName(COMMON_PACKAGE_NAME, "Logger")
@@ -151,38 +150,43 @@ class LogProcessor : AbstractProcessor() {
         }
         val logger =
             PropertySpec.builder(
-                "mLogger",
-                ClassName(packNameString, className).copy(nullable = true)
-            )
+                    "mLogger",
+                    ClassName(packNameString, className)
+                )
                 .mutable()
                 .addModifiers(KModifier.PRIVATE)
                 .initializer("$className()")
                 .build()
         val loggerConfig =
             PropertySpec.builder(
-                "mLoggerConfig",
-                ClassName(COMMON_PACKAGE_NAME, "AbstractLogConfig").copy(nullable = true)
-            )
+                    "mLoggerConfig",
+                    ClassName(COMMON_PACKAGE_NAME, "AbstractLogConfig"))
                 .mutable()
                 .addModifiers(KModifier.PRIVATE)
-                .initializer("mLogger?.getAbstractLogConfig()")
+                .initializer("mLogger.getAbstractLogConfig()")
                 .build()
 
-        val flux=FunSpec.constructorBuilder()
-            .addStatement(" mLogger = %T()",ClassName(packNameString,className))
-            .addStatement(" mLoggerConfig = mLogger?.getAbstractLogConfig()")
-            .build()
+        val mLog =
+            PropertySpec.builder(
+                    "_mLog",
+                    ClassName(packNameString, "_$className")
+                )
+                .mutable()
+                .addModifiers(KModifier.PRIVATE)
+                .initializer("_$className()")
+                .build()
         val companion = TypeSpec.companionObjectBuilder()
             .addProperty(logger)
             .addProperty(loggerConfig)
+            .addProperty(mLog)
 
         companion.let {
             it.addFunction(
                 FunSpec.builder("json")
                     .addParameter("json", String::class)
                     .addParameter(jsonLogTag)
-                    .addStatement("if (mLoggerConfig?.checkPermission()!!) {")
-                    .addStatement("val filePath = mLoggerConfig?.getLogFilePath(logTag)")
+                    .addStatement("if (AbstractLogConfig.checkPermission()) {")
+                    .addStatement("val filePath = mLoggerConfig.getLogFilePath(logTag)")
                     .addStatement(
                         " %T.json(json = json, filePath = filePath!!)",
                         ClassName(COMMON_PACKAGE_NAME, "Logger")
@@ -193,8 +197,8 @@ class LogProcessor : AbstractProcessor() {
             it.addFunction(
                 FunSpec.builder("json")
                     .addParameter("json", String::class)
-                    .addStatement("if (mLoggerConfig?.checkPermission()!!) {")
-                    .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"jsonLogTag\")")
+                    .addStatement("if (AbstractLogConfig.checkPermission()) {")
+                    .addStatement("val filePath = mLoggerConfig.getLogFilePath(\"jsonLogTag\")")
                     .addStatement(
                         " %T.json(json = json, filePath = filePath!!)",
                         ClassName(COMMON_PACKAGE_NAME, "Logger")
@@ -202,6 +206,7 @@ class LogProcessor : AbstractProcessor() {
                     .addStatement("}")
                     .build()
             )
+
             for (funSpec in arrayFunction1) {
                 it.addFunction(funSpec.build())
             }
@@ -209,9 +214,23 @@ class LogProcessor : AbstractProcessor() {
                 it.addFunction(funSpec.build())
             }
         }
+
         val file = FileSpec.builder(packNameString, fileClassNameString)
             .addType(
                 TypeSpec.classBuilder(fileClassNameString)
+                    .primaryConstructor(
+                        FunSpec.constructorBuilder()
+                            .addModifiers(KModifier.PRIVATE)
+                            .addStatement("if (AbstractLogConfig.checkPermission()&&mLogger.isRetention()){")
+                            .addStatement(
+                                "%T(mLogger.onDetectedFolderPath()!!, mLogger.onRetentionTime()).start()",
+                                ClassName(
+                                    COMMON_PACKAGE_NAME, "RemoveFileRegularlyThread"
+                                )
+                            )
+                            .addStatement("}")
+                            .build()
+                    )
                     .addType(companion.build())
                     .build()
             )

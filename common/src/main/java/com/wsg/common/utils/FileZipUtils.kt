@@ -4,6 +4,8 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Environment
+import com.wsg.common.DefaultLogConfig
 import com.wsg.common.utils.FileZipUtils.unZipTo
 import com.wsg.common.utils.FileZipUtils.zip
 import java.io.File
@@ -28,6 +30,7 @@ fun File.smartCreateNewFile(): Boolean {
     if (parentFile!!.mkdirs()) return createNewFile()
     return false
 }
+
 
 /**
  * 压缩
@@ -89,6 +92,18 @@ object FileZipUtils {
                 input.writeTo(output, DEFAULT_BUFFER_SIZE)
             }
         }
+    }
+
+      fun generateDefaultLogDirectory(path: String): String? {
+        if (Environment.isExternalStorageEmulated()) {
+            val sdcardDirectory = Environment.getExternalStorageDirectory()
+            val file = File(sdcardDirectory, path)
+            if (!file.exists()) {
+                file.mkdirs()
+            }
+            return file.absolutePath
+        }
+        return null
     }
 
 

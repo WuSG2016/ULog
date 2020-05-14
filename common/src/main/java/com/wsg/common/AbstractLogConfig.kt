@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import com.wsg.common.utils.TimeUtils
+import java.util.*
 
 /**
  *  @author WuSG
@@ -18,10 +19,26 @@ abstract class AbstractLogConfig {
 
     abstract fun onSuffix(): String?
 
-
     companion object {
         const val DEFAULT_SUFFIX = ".log"
         lateinit var APP: Application
+        /**
+         * 权限检测
+         */
+        fun checkPermission(): Boolean {
+            val pm: PackageManager = APP.packageManager
+            val permissionReadStorage = (PackageManager.PERMISSION_GRANTED ==
+                    pm.checkPermission(
+                        "android.permission.READ_EXTERNAL_STORAGE",
+                        APP.packageName
+                    ))
+            val permissionWriteStorage = (PackageManager.PERMISSION_GRANTED ==
+                    pm.checkPermission(
+                        "android.permission.WRITE_EXTERNAL_STORAGE",
+                        APP.packageName
+                    ))
+            return permissionReadStorage && permissionWriteStorage
+        }
     }
 
     fun getLogFilePath(logTag: String): String? {
@@ -35,22 +52,6 @@ abstract class AbstractLogConfig {
             .replace("//", "/")
     }
 
-    /**
-     * 权限检测
-     */
-    fun checkPermission(): Boolean {
-        val pm: PackageManager = APP.packageManager
-        val permissionReadStorage = (PackageManager.PERMISSION_GRANTED ==
-                pm.checkPermission(
-                    "android.permission.READ_EXTERNAL_STORAGE",
-                    APP.packageName
-                ))
-        val permissionWriteStorage = (PackageManager.PERMISSION_GRANTED ==
-                pm.checkPermission(
-                    "android.permission.WRITE_EXTERNAL_STORAGE",
-                    APP.packageName
-                ))
-        return permissionReadStorage && permissionWriteStorage
-    }
+
 
 }
