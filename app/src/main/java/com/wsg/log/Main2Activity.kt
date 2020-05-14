@@ -21,7 +21,7 @@ class Main2Activity : Activity() {
         _UboxLog.json(json, "devLog")
         _UboxLog.devLog("dda")
         TestULog.Log("dadada")
-        zip()
+//        zip()
 
     }
 

@@ -1,5 +1,6 @@
 package com.wsg.common
 
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import com.wsg.common.utils.TimeUtils
@@ -17,11 +18,13 @@ abstract class AbstractLogConfig {
 
     abstract fun onSuffix(): String?
 
+
     companion object {
         const val DEFAULT_SUFFIX = ".log"
+        lateinit var APP: Application
     }
 
-     fun getLogFilePath(logTag: String): String? {
+    fun getLogFilePath(logTag: String): String? {
         return getDefaultLogDirectory()!!
             .plus("/$logTag")
             .plus("/")
@@ -35,17 +38,17 @@ abstract class AbstractLogConfig {
     /**
      * 权限检测
      */
-    fun checkPermission(mContexts: Context): Boolean {
-        val pm: PackageManager = mContexts.packageManager
+    fun checkPermission(): Boolean {
+        val pm: PackageManager = APP.packageManager
         val permissionReadStorage = (PackageManager.PERMISSION_GRANTED ==
                 pm.checkPermission(
                     "android.permission.READ_EXTERNAL_STORAGE",
-                    mContexts.packageName
+                    APP.packageName
                 ))
         val permissionWriteStorage = (PackageManager.PERMISSION_GRANTED ==
                 pm.checkPermission(
                     "android.permission.WRITE_EXTERNAL_STORAGE",
-                    mContexts.packageName
+                    APP.packageName
                 ))
         return permissionReadStorage && permissionWriteStorage
     }

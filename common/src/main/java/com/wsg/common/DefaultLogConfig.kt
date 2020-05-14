@@ -1,6 +1,7 @@
 package com.wsg.common
 
 
+import android.app.Application
 import android.os.Environment
 import com.wsg.common.utils.TimeUtils
 import java.io.File
@@ -21,6 +22,7 @@ class DefaultLogConfig : AbstractLogConfig() {
     override fun getDefaultLogDirectory(): String? {
         return generateDefaultLogDirectory()
     }
+
 
     override fun onSuffix(): String? {
         return DEFAULT_SUFFIX

@@ -50,9 +50,9 @@ dependencies {
     implementation project(path: ':common')
     kapt project(':compiler')
     implementation project(path: ':annotation')
-//    implementation 'com.github.WuSG2016.Ulog:annotation:1.1'
-//    implementation 'com.github.WuSG2016.Ulog:common:1.1'
-//    kapt 'com.github.WuSG2016.Ulog:compiler:1.1'
+//    implementation 'com.github.WuSG2016.Ulog:annotation:1.2'
+//    implementation 'com.github.WuSG2016.Ulog:common:1.2'
+//    kapt 'com.github.WuSG2016.Ulog:compiler:1.2'
 
 }
 afterEvaluate {

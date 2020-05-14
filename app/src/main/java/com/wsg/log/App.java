@@ -10,6 +10,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        _UboxLog.Companion.init(this);
+//        _UboxLog.Companion.init(this);
     }
 }

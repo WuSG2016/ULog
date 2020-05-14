@@ -115,7 +115,7 @@ class LogProcessor : AbstractProcessor() {
                         FunSpec.builder(funName)
                             .addParameter(msgParameter)
                             .addParameter(tag)
-                            .addStatement("if (mLoggerConfig!!.checkPermission(mApplication!!)) {")
+                            .addStatement("if (mLoggerConfig!!.checkPermission()) {")
                             .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"$funName\")")
                             .addStatement(
                                 " %T.otherTagLog(msg = msg, tag = tag, filePath = filePath!!)",
@@ -137,7 +137,7 @@ class LogProcessor : AbstractProcessor() {
                     else -> {
                         FunSpec.builder(funName)
                             .addParameter(msgParameter)
-                            .addStatement("if (mLoggerConfig!!.checkPermission(mApplication!!)) {")
+                            .addStatement("if (mLoggerConfig!!.checkPermission()) {")
                             .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"$funName\")")
                             .addStatement(
                                 " %T.otherTagLog(msg = msg,  tag = \"Ubox_TAG\", filePath = filePath!!)",
@@ -156,7 +156,7 @@ class LogProcessor : AbstractProcessor() {
             )
                 .mutable()
                 .addModifiers(KModifier.PRIVATE)
-                .initializer("null")
+                .initializer("$className()")
                 .build()
         val loggerConfig =
             PropertySpec.builder(
@@ -165,35 +165,23 @@ class LogProcessor : AbstractProcessor() {
             )
                 .mutable()
                 .addModifiers(KModifier.PRIVATE)
-                .initializer("null")
+                .initializer("mLogger?.getAbstractLogConfig()")
                 .build()
-        val application =
-            PropertySpec.builder(
-                "mApplication",
-                ClassName(APPLICATION_PACKAGE_NAME, "Application").copy(nullable = true)
-            )
-                .mutable()
-                .addModifiers(KModifier.PRIVATE)
-                .initializer("null")
-                .build()
+
+        val flux=FunSpec.constructorBuilder()
+            .addStatement(" mLogger = %T()",ClassName(packNameString,className))
+            .addStatement(" mLoggerConfig = mLogger?.getAbstractLogConfig()")
+            .build()
         val companion = TypeSpec.companionObjectBuilder()
             .addProperty(logger)
             .addProperty(loggerConfig)
-            .addProperty(application)
+
         companion.let {
-            it.addFunction(
-                FunSpec.builder("init")
-                    .addParameter("application", ClassName(APPLICATION_PACKAGE_NAME, "Application"))
-                    .addStatement(" this.mApplication = application")
-                    .addStatement(" mLogger = %T()",ClassName(packNameString,className))
-                    .addStatement(" mLoggerConfig = mLogger?.getAbstractLogConfig()")
-                    .build()
-            )
             it.addFunction(
                 FunSpec.builder("json")
                     .addParameter("json", String::class)
                     .addParameter(jsonLogTag)
-                    .addStatement("if (mLoggerConfig?.checkPermission(mApplication!!)!!) {")
+                    .addStatement("if (mLoggerConfig?.checkPermission()!!) {")
                     .addStatement("val filePath = mLoggerConfig?.getLogFilePath(logTag)")
                     .addStatement(
                         " %T.json(json = json, filePath = filePath!!)",
@@ -205,7 +193,7 @@ class LogProcessor : AbstractProcessor() {
             it.addFunction(
                 FunSpec.builder("json")
                     .addParameter("json", String::class)
-                    .addStatement("if (mLoggerConfig?.checkPermission(mApplication!!)!!) {")
+                    .addStatement("if (mLoggerConfig?.checkPermission()!!) {")
                     .addStatement("val filePath = mLoggerConfig?.getLogFilePath(\"jsonLogTag\")")
                     .addStatement(
                         " %T.json(json = json, filePath = filePath!!)",

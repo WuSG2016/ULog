@@ -1,2 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wsg.common" />
+    package="com.wsg.common" >
+    <application>
+        <provider
+            android:name="com.wsg.LoggerRuntimeProvider"
+            android:authorities="com.wsg.LoggerRuntimeProvider"
+            android:exported="false"
+            android:multiprocess="true" />
+    </application>
+    </manifest>
