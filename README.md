@@ -26,15 +26,27 @@ dependencies {
 ```
 //增加注解 增加对应的TAG文件信息(如dev会生成dev目录下dev-2020-1-6.log的文件)
 //make project 会生成_UboxLog文件类 包含TAG等方法(_UboxLog.dev(msg))
+//开启日志文件监控会根据保留时间移除文件（在下次重新启动的时候）
 @ULog(tagName = ["dev"])
 class UboxLog : AbstractLogger() {
     override fun getAbstractLogConfig(): AbstractLogConfig {
         return DefaultLogConfig()//默认自带的配置类
     }
+    //日志文件保留时长 一分钟
+    override fun onRetentionTime(): Long {
+        return 1000 * 60
+    }
+    //是否开启日志监控
+    override fun isRetention(): Boolean {
+        return true
+    }
+     //监控的文件夹目录
+    override fun onDetectedFolderPath(): String? {
+        return FileZipUtils.generateDefaultLogDirectory("ULog")
+    }
 }
 
-//别忘了在Application 里加入代码 用于初始化
- _UboxLog.Companion.init(this);
+
 ```
 - ## 抽象类AbstractLogConfig说明
 
@@ -64,3 +76,4 @@ AbstractLogConfig
                 "/mnt/sdcard/Ulog/2020-01/devLog/devLog-2020-01-9.log"
             )
 ```
+- #### 1.5版本增加日志文件监控
